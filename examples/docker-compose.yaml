@@ -1,0 +1,44 @@
+---
+#
+# demo docker-compose to demonstrate use of libfaketime_init
+#
+# - libfaketime_init image gets started and writes libfaketime into shared volume
+# - app container waits for init container to finish
+# - then starts and preloads libfaketime which
+# - shifts the container process in time
+#
+# The looping script then prints the time modified by the offset defined in FAKETIME.
+#
+# **** There's no need to modify the applications image ! ****
+#
+
+services:
+
+  # init container mounts volume and copies libfaketime into it
+  initContainer:
+    image: katalytic/libfaketime_init:1.0
+    volumes:
+      - shared_lft_volume:/lft_volume    # shared volume
+    environment:
+      - LFT_DESTPATH=/lft_volume         # destination path for library
+
+  # application container waits until init container finished
+  appContainer:
+    image: ubuntu:latest                 # run simple loop date cmd on plain ubuntu image
+    command: ["/bin/bash", "-c", "while true; do date; sleep 1; done"]
+    environment:
+      - LD_PRELOAD=/lft_volume/libfaketime.so.1   # preload libfaketime library
+      - FAKETIME=+1234d                           # modify clock by 1234 days to the future
+
+    depends_on:
+      initContainer:                  # wait for init container to finish
+        condition: service_completed_successfully
+
+    volumes:
+      - shared_lft_volume:/lft_volume # shared volume, now *with* libfaketime
+
+# Finally, the shared volume where
+# - the init container writes the library to
+# - the app container loads the library from
+volumes:
+  shared_lft_volume:
