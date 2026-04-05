@@ -1,0 +1,67 @@
+---
+#
+#  Example deployment how to use libfaketime_init image for init containers
+#
+#  Before starting the main app container, an init container gets deployed
+#  based on the katalytic/libfaketime_init image which copies the libfaketime
+#  library to a configurable path which should be a shared volume (emptyDir).
+#
+#  The app container mounts the volume, too, and preloads the libfaletime
+#  library from there. libfaketime in between the app and teh kernel then
+#  manipulates every syscall regarding date/time.
+#
+#  => Your app moved in time without any modification of its image. <=
+#
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: libfaketime-init-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: libfaketime-init-demo
+  template:
+    metadata:
+      labels:
+        app: libfaketime-init-demo
+
+    spec:
+      # 1. The shared volume where:
+      # - the init container writes the libfaketime library to
+      # - the app container loads the libfaketime library from
+      # emptyDir is sufficient
+      volumes:
+      - name: shared-lft-volume
+        emptyDir: {}
+
+      # 2. The init container which injects the library via the shared volume
+      initContainers:
+      - name: inject-libfaketime
+        image: katalytic/libfaketime_init:1.0
+        imagePullPolicy: IfNotPresent
+        env:
+          - name: LFT_DESTPATH     # path where the library should be copied
+            value: /lft_volume
+        volumeMounts:
+        - name: shared-lft-volume  # which is the shared volume
+          mountPath:  /lft_volume
+
+      # 3. The main app, tick tock, just a ticking clock
+      containers:
+      - name: main-app
+        image: ubuntu:latest
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/bash", "-c", "while true; do date; sleep 1; done"]
+
+        env:
+        - name:  LD_PRELOAD        # HERE'S THE TRICK: preload libfaketime library
+          value: "/lft_volume/libfaketime.so.1"
+        - name:  FAKETIME          # for demo, set a relative time offset;
+          value: "+1234d"          # absolute startdate or fixed datetime also possible
+
+        volumeMounts:              # mount the volume with the libfaketime library
+        - name: shared-lft-volume
+          mountPath:  /lft_volume
+

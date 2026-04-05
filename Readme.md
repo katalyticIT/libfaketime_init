@@ -23,7 +23,9 @@ For an example how exactly it's done please see our repository [Marty McFly](htt
 This project is published unter the GNU General Public License v3.0.
 For details please see the LICENSE file.
 
-## docker compose demo
+## demo files
+
+### docker compose demo
 
 In the folder examples you'll find a docker compose file which
 demonstrates the principle of inserting libfaketime via an init
@@ -45,5 +47,35 @@ docker compose -f examples/docker-compose.yaml up
 # break with ctrl-c; then remove containers:
 docker compose -f examples/docker-compose.yaml down
 ```
+
+### kubernetes demo
+
+The file k8s-deployment.yaml, to be found in the folder examples,
+shows how to use the libfaketime_init image to moce your app
+container in time without modification of the apps image.
+Simply apply the manifest using kubectl:
+
+```
+$ kubectl apply -f examples/k8s-deployment.yaml
+deployment.apps/libfaketime-init-demo created
+$ # After some seconds, check the logs
+$ kubectl logs libfaketime-init-demo-xxx-xxx inject-libfaketime
+copying libfaketime library files to /lft_volume ...
+'/usr/lib/x86_64-linux-gnu/faketime//libfaketime.so.1' -> '/lft_volume/libfaketime.so.1'
+'/usr/lib/x86_64-linux-gnu/faketime//libfaketimeMT.so.1' -> '/lft_volume/libfaketimeMT.so.1'
+$ kubectl logs libfaketime-init-demo-xxx-xxx main-app -f
+Tue Aug 21 15:53:59 UTC 2029
+Tue Aug 21 15:54:00 UTC 2029
+Tue Aug 21 15:54:01 UTC 2029
+$ kubectl delete -f examples/k8s-deployment.yaml
+deployment.apps "libfaketime-init-demo" deleted
+$
+```
+
+In the demo the FAKETIME parameter for libfaketime is set to a relative
+offset of 1234 days so the application thinks it's roughly 3.5 years
+ahead.
+
 # AI notice
+
 There have no AI tools been involved in developing this project.
