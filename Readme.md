@@ -1,13 +1,13 @@
 
 # libfaketime_init
 
-Image for a init container which may be used to write libfaketime to a shared
-volume - which may be loaded from there by the app container for "time travel".
+Image for a init container which may be used to write the libfaketime library to a shared
+volume - from which it may be loaded by an app container for "time travel".
 
 ## What is it about?
 
 [libfaketime](https://github.com/wolfcw/libfaketime) is a library which modifies
-the time for a process under linux without affecting the rest of the system. It's
+the time for a process under Linux without affecting the rest of the system. It's
 ideal to let containers/pods travel in time by using the LD_PRELOAD mechanism.
 
 Using this image for an init container, *you don't need to modify your app image.*
@@ -51,7 +51,7 @@ docker compose -f examples/docker-compose.yaml down
 ### kubernetes demo
 
 The file k8s-deployment.yaml, to be found in the folder examples,
-shows how to use the libfaketime_init image to moce your app
+shows how to use the libfaketime_init image to move your app
 container in time without modification of the apps image.
 Simply apply the manifest using kubectl:
 
@@ -73,7 +73,7 @@ $
 ```
 
 In the demo the FAKETIME parameter for libfaketime is set to a relative
-offset of 1234 days so the application thinks it's roughly 3.5 years
+offset of 1234 days so that the application thinks it's roughly 3.5 years
 ahead.
 
 # AI notice
