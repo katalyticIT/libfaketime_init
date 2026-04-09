@@ -16,7 +16,7 @@ services:
 
   # init container mounts volume and copies libfaketime into it
   initContainer:
-    image: katalytic/libfaketime_init:1.0
+    image: katalytic/libfaketime_init:amd64_alpine_1.0.100 # small alpine image with UBUNTU libfaketime (!!) [alpine uses musl instead of libc so libfaketime won't work anyway]
     volumes:
       - shared_lft_volume:/lft_volume    # shared volume
     environment:

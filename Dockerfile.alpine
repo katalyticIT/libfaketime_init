@@ -1,0 +1,33 @@
+#
+# Dockerfile.alpine - part of https://github.com/katalyticIT/libfaketime_init
+#
+
+# This file creates a small alpine based image which may be used
+# to inject Ubuntu based libfaketime into Ubuntu based images in
+# your environment. 
+#
+# Alpine itself uses musl instead of libc, so libfaketime won't
+# work anyway. This is just about image size for the init container
+# to have a small alpine based "transporter image" (~ 7 MB) instead
+# of a "big" Ubuntu image (~70 MB).
+
+
+#-- definitions/build arguments
+ARG BASEIMAGE=alpine:latest
+
+FROM $BASEIMAGE
+
+# update image
+RUN  apk update && apk upgrade
+
+#-- install libfaketime --
+# 1) for transportation & copy script, create same library path as in Ubuntu image
+RUN mkdir -p /usr/lib/x86_64-linux-gnu/faketime/
+# 2) copy library binaries from ubuntu image
+COPY --from=katalytic/libfaketime_init:amd64_ubuntu_1.0.100 /usr/lib/x86_64-linux-gnu/faketime/libfaketime* /usr/lib/x86_64-linux-gnu/faketime/
+
+# copy runtime script and make it executable
+COPY src/copyLibfaketime.sh /tmp
+RUN  mkdir /app && mv /tmp/copyLibfaketime.sh /app && chmod +x /app/copyLibfaketime.sh
+
+CMD ["/app/copyLibfaketime.sh"]
