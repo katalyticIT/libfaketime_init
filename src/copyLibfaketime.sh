@@ -23,13 +23,13 @@ LFT_DESTPATH=${LFT_DESTPATH:-/mnt}
 if [ -w "${LFT_DESTPATH}" ] ; then
 
   # copy the library files, standard & multithreading variant
-  echo "copying libfaketime library files to $LFT_DESTPATH ..."
+  echo -e "-------------------\ncopying libfaketime library files to $LFT_DESTPATH ...\n"
   cp -v $LFT_SRCPATH/libfaketime*.so.1 $LFT_DESTPATH
 
 else
 
   # something's wrong ...
-  echo "ERROR: ${LFT_DESTPATH} is not a writeable directory; exiting."
+  echo -e "*******************\nERROR: ${LFT_DESTPATH} is not a writeable directory; exiting."
   exit 1
 
 fi

@@ -24,7 +24,7 @@ RUN  apk update && apk upgrade
 # 1) for transportation & copy script, create same library path as in Ubuntu image
 RUN mkdir -p /usr/lib/x86_64-linux-gnu/faketime/
 # 2) copy library binaries from ubuntu image
-COPY --from=katalytic/libfaketime_init:amd64_ubuntu_1.0.100 /usr/lib/x86_64-linux-gnu/faketime/libfaketime* /usr/lib/x86_64-linux-gnu/faketime/
+COPY --from=katalytic/libfaketime_init:latest /usr/lib/x86_64-linux-gnu/faketime/libfaketime* /usr/lib/x86_64-linux-gnu/faketime/
 
 # copy runtime script and make it executable
 COPY src/copyLibfaketime.sh /tmp

@@ -3,7 +3,7 @@
 #
 
 #-- definitions/build arguments
-ARG BASEIMAGE=ubuntu:latest
+ARG BASEIMAGE=debian:trixie-slim
 
 FROM $BASEIMAGE
 
