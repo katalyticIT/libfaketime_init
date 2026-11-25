@@ -1,6 +1,13 @@
 #
-# Dockerfile.ubuntu - part of https://github.com/katalyticIT/libfaketime_init
+# Dockerfile.debian - part of https://github.com/katalyticIT/libfaketime_init
 #
+
+# This Dockerfile creates a debian based image containing libfaketime.
+# When running as init container, the copied script writes the library
+# into the path $LFT_DESTPATH which should be the shared volume.
+
+# The resulting image is about 45 MB. If you want a smaller image,
+# use the alpine Dockerfile.
 
 #-- definitions/build arguments
 ARG BASEIMAGE=debian:trixie-slim
