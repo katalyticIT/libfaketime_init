@@ -1,19 +1,21 @@
 
 # libfaketime_init
 
-Image for a init container which may be used to write the libfaketime library to a shared
-volume - from which it may be loaded by an app container for "time travel".
+*Move your container through time* by using this image for an init container
+in your deployment. It inserts libfaketime into an application
+container **without having to modify the app or the image**.
 
 ## What is it about?
 
-[libfaketime](https://github.com/wolfcw/libfaketime) is a library which modifies
+[libfaketime](https://github.com/wolfcw/libfaketime) is a library that modifies
 the time for a process under Linux without affecting the rest of the system. It's
 ideal to let containers/pods travel in time by using the LD_PRELOAD mechanism.
 
 Using this image for an init container, *you don't need to modify your app image.*
-Init and app container should share a volume into which the init container writes
-and from where the app container loads the library - et voilá, you don't need
-1.21 GW of power to move a pod back to 1985.
+Init and app container should share a volume
+* into which the init container writes
+* and from where the app container loads the library.
+Et voilá, you don't need 1.21 GW of power to move a pod back to 1985.
 
 For an example how exactly it's done please see our repository [Marty McFly](https://github.com/katalyticIT/Marty-McFly).
 
@@ -36,7 +38,7 @@ container. It starts two containers:
 * the app container. It gets started after the init container
   is finished. The environment variable LD_PRELOAD is set to
   the path of libfaketime so that it gets loaded *before* the
-  application, thus able to intercept system calls regerding
+  application, thus able to intercept system calls regarding
   time and to modify the "clock".
 
 To test it simply run

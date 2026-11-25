@@ -16,7 +16,7 @@ services:
 
   # init container mounts volume and copies libfaketime into it
   initContainer:
-    image: katalytic/libfaketime_init:amd64_alpine_1.0.100 # small alpine image with UBUNTU libfaketime (!!) [alpine uses musl instead of libc so libfaketime won't work anyway]
+    image: docker.io/katalytic/libfaketime_init:stable # contains libfaketime
     volumes:
       - shared_lft_volume:/lft_volume    # shared volume
     environment:
@@ -24,7 +24,7 @@ services:
 
   # application container waits until init container finished
   appContainer:
-    image: ubuntu:latest                 # run simple loop date cmd on plain ubuntu image
+    image: debian:trixie-slim            # run simple loop date cmd on plain ubuntu image
     command: ["/bin/bash", "-c", "while true; do date; sleep 1; done"]
     environment:
       - LD_PRELOAD=/lft_volume/libfaketime.so.1   # preload libfaketime library

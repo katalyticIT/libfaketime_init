@@ -2,31 +2,52 @@
 # Dockerfile.alpine - part of https://github.com/katalyticIT/libfaketime_init
 #
 
-# This file creates a small alpine based image which may be used
-# to inject Ubuntu based libfaketime into Ubuntu based images in
+# This file creates in two steps a small alpine based image which may be used
+# to inject libfaketime into glibc based images (debian, ubuntu, redhat) in
 # your environment. 
+#
+# In the first step, libfaketime gets installed in a debian image from
+# where it gets copied into the alpine based "transporter image" in the
+# second step.
 #
 # Alpine itself uses musl instead of libc, so libfaketime won't
 # work anyway. This is just about image size for the init container
 # to have a small alpine based "transporter image" (~ 7 MB) instead
 # of a "big" Ubuntu image (~70 MB).
 
+ARG   BUILDIMAGE=debian:trixie-slim
+ARG   TRANSPORTIMAGE=alpine:latest
+
+#==== part 1 - install libfaketime into a debian image ====
+
+#-- definitions/build arguments; can be overwritten with --build-arg
+FROM $BUILDIMAGE  AS  builder
+
+#-- update image
+RUN  apt-get update && apt-get -y upgrade
+
+#-- install libfaketime
+RUN  apt-get -y install libfaketime
+
+
+#==== part 2 - copy libfaketime into the alpine image ====
 
 #-- definitions/build arguments
-ARG BASEIMAGE=alpine:latest
+FROM $TRANSPORTIMAGE as transporter
 
-FROM $BASEIMAGE
-
-# update image
+#-- update image
 RUN  apk update && apk upgrade
 
-#-- install libfaketime --
-# 1) for transportation & copy script, create same library path as in Ubuntu image
-RUN mkdir -p /usr/lib/x86_64-linux-gnu/faketime/
-# 2) copy library binaries from ubuntu image
-COPY --from=katalytic/libfaketime_init:latest /usr/lib/x86_64-linux-gnu/faketime/libfaketime* /usr/lib/x86_64-linux-gnu/faketime/
+#-- package libfaketime
+ARG LFT_SRCPATH=/usr/lib/x86_64-linux-gnu/faketime
+ENV LFT_SRCPATH=$LFT_SRCPATH
 
-# copy runtime script and make it executable
+# 1) for transportation & copy script, create same library path as in Ubuntu image
+RUN mkdir -p $LFT_SRCPATH
+# 2) copy library binaries from ubuntu image
+COPY --from=builder ${LFT_SRCPATH}/libfaketime* ${LFT_SRCPATH}
+
+#-- copy runtime script and make it executable
 COPY src/copyLibfaketime.sh /tmp
 RUN  mkdir /app && mv /tmp/copyLibfaketime.sh /app && chmod +x /app/copyLibfaketime.sh
 

@@ -39,7 +39,7 @@ spec:
       # 2. The init container which injects the library via the shared volume
       initContainers:
       - name: inject-libfaketime
-        image: katalytic/libfaketime_init:1.0
+        image: docker.io/katalytic/libfaketime_init:stable
         imagePullPolicy: IfNotPresent
         env:
           - name: LFT_DESTPATH     # path where the library should be copied
@@ -51,7 +51,7 @@ spec:
       # 3. The main app, tick tock, just a ticking clock
       containers:
       - name: main-app
-        image: ubuntu:latest
+        image: debian:trixie-slim
         imagePullPolicy: IfNotPresent
         command: ["/bin/bash", "-c", "while true; do date; sleep 1; done"]
 
