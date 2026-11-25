@@ -15,6 +15,7 @@ Using this image for an init container, *you don't need to modify your app image
 Init and app container should share a volume
 * into which the init container writes
 * and from where the app container loads the library.
+
 Et voilá, you don't need 1.21 GW of power to move a pod back to 1985.
 
 For an example how exactly it's done please see our repository [Marty McFly](https://github.com/katalyticIT/Marty-McFly).
@@ -25,9 +26,9 @@ For an example how exactly it's done please see our repository [Marty McFly](htt
 This project is published unter the GNU General Public License v3.0.
 For details please see the LICENSE file.
 
-## demo files
+## Demo files
 
-### docker compose demo
+### Docker compose demo
 
 In the folder examples you'll find a docker compose file which
 demonstrates the principle of inserting libfaketime via an init
@@ -50,7 +51,7 @@ docker compose -f examples/docker-compose.yaml up
 docker compose -f examples/docker-compose.yaml down
 ```
 
-### kubernetes demo
+### Kubernetes demo
 
 The file k8s-deployment.yaml, to be found in the folder examples,
 shows how to use the libfaketime_init image to move your app
@@ -60,7 +61,10 @@ Simply apply the manifest using kubectl:
 ```
 $ kubectl apply -f examples/k8s-deployment.yaml
 deployment.apps/libfaketime-init-demo created
-$ # After some seconds, check the logs
+```
+
+After some seconds, check the logs:
+```
 $ kubectl logs libfaketime-init-demo-xxx-xxx inject-libfaketime
 copying libfaketime library files to /lft_volume ...
 '/usr/lib/x86_64-linux-gnu/faketime//libfaketime.so.1' -> '/lft_volume/libfaketime.so.1'
@@ -69,9 +73,12 @@ $ kubectl logs libfaketime-init-demo-xxx-xxx main-app -f
 Tue Aug 21 15:53:59 UTC 2029
 Tue Aug 21 15:54:00 UTC 2029
 Tue Aug 21 15:54:01 UTC 2029
+```
+
+When finished, cleanup and remove the deployment:
+```
 $ kubectl delete -f examples/k8s-deployment.yaml
 deployment.apps "libfaketime-init-demo" deleted
-$
 ```
 
 In the demo the FAKETIME parameter for libfaketime is set to a relative
