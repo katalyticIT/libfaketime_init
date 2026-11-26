@@ -14,18 +14,29 @@
 #
 
 # define where the libraries got installed at build time
-LFT_SRCPATH="/usr/lib/x86_64-linux-gnu/faketime/"
+LFT_SRCPATH="/usr/lib/x86_64-linux-gnu/faketime"
 
 # make sure LFT_DESTPATH is set; default is /mnt
 LFT_DESTPATH=${LFT_DESTPATH:-/mnt}
+
+cat <<EOT
+================================================================
+
+katalytic/libfaketime_init - copy libfaketime into shared volume
+
+Find the code at https://github.com/katalyticIT/libfaketime_init
+
+================================================================
+
+EOT
 
 # check if destination path exists and is a writeable directory
 if [ -w "${LFT_DESTPATH}" ] ; then
 
   # copy the library files, standard & multithreading variant
-  echo -e "-------------------\ncopying libfaketime library files to $LFT_DESTPATH ...\n"
+  echo "copying libfaketime library files to $LFT_DESTPATH:"
   cp -v $LFT_SRCPATH/libfaketime*.so.1 $LFT_DESTPATH
-
+  echo
 else
 
   # something's wrong ...
